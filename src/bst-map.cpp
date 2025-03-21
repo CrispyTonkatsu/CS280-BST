@@ -109,17 +109,111 @@ namespace CS280 {
 
   /// Node Methods
 
-  // TODO: Find how the hell to implement this here
   template<typename K, typename V>
-  BSTmap<K, V>::Node::Node(
-    K k,
-    V val,
-    Node* p,
-    int h,
-    int b,
-    Node* l,
-    Node* r
-  ) {}
+  BSTmap<K, V>::Node::Node(K k, V val, Node* p, int h, int b, Node* l, Node* r):
+      key(k), value(val), parent(p), height(h), balance(b), left(l), right(r) {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::Key() const -> const K& {
+    return key;
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::Value() -> V& {
+    return value;
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::first() -> Node* {
+    if (left == nullptr) {
+      return this;
+    }
+
+    return left->first();
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::last() -> Node* {
+    if (right == nullptr) {
+      return this;
+    }
+
+    return right->last();
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::increment() -> Node* {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::decrement() -> Node* {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::print(std::ostream& os) const -> void {
+    // NOTE: Make sure that std::endl is not needed here
+    os << value;
+  }
+
+  // Iterator Methods
+
+  template<typename K, typename V>
+  BSTmap<K, V>::BSTmap_iterator::BSTmap_iterator(Node* p) {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator=(const BSTmap_iterator& rhs)
+    -> BSTmap_iterator& {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator++() -> BSTmap_iterator& {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator++(int) -> BSTmap_iterator {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator*() -> Node& {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator->() -> Node* {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator!=(const BSTmap_iterator& rhs)
+    -> bool {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator==(const BSTmap_iterator& rhs)
+    -> bool {}
+
+  // Const iterator_const Methods
+
+  template<typename K, typename V>
+  BSTmap<K, V>::BSTmap_iterator_const::BSTmap_iterator_const(Node* p) {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator=(const BSTmap_iterator& rhs
+  ) -> BSTmap_iterator_const& {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator++()
+    -> BSTmap_iterator_const& {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator++(int)
+    -> BSTmap_iterator_const {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator*() -> Node& {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator->() -> Node* {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator!=(
+    const BSTmap_iterator_const& rhs
+  ) -> bool {}
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator==(
+    const BSTmap_iterator_const& rhs
+  ) -> bool {}
 
   ////////////////////////////////////////////////////////////
   // do not change this code from here to the end of the file
