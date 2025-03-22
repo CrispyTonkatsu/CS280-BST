@@ -1,4 +1,4 @@
-#include <cctype>
+#include <iterator>
 #include <optional>
 #include <ostream>
 #include <vector>
@@ -98,8 +98,12 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::getdepth(Node*& ) const -> unsigned int {
-    // TODO: Calculate the depth
+  auto BSTmap<K, V>::getdepth(Node*& node) const -> unsigned int {
+    std::optional<NodeSearch> search = search_node(node->Key());
+    if (search.has_value()) {
+      return search.value().depth;
+    }
+
     return 0;
   }
 
@@ -107,62 +111,75 @@ namespace CS280 {
   auto BSTmap<K, V>::operator[](const K& key) -> V& {
     if (root == nullptr) {
       root = Node::CreateNode(key);
+      size_++;
       return root->Value();
-    }
-
-    Node* current{root};
-
-    while (current->has_children()) {
-      if (key == current->Key()) {
-        return current->Value();
-      }
-
-      if (key > current->Key()) {
-        if (current->left == nullptr) {
-          Node* to_add = Node::CreateNode(key);
-          current->add_child(*to_add);
-
-          return to_add->Value();
-        }
-
-        current = current->left;
-      }
-
-      if (key < current->Key()) {
-        if (current->right == nullptr) {
-          Node* to_add = Node::CreateNode(key);
-          current->add_child(*to_add);
-
-          return to_add->Value();
-        }
-
-        current = current->right;
-      }
-    }
-
-    // TODO: Find a better way to indicate error
-    return root->Value();
-  }
-
-  template<typename K, typename V>
-  auto BSTmap<K, V>::search_node(K key) const -> NodeSearch {
-    if (root == nullptr) {
-      return std::nullopt;
     }
 
     Node* current{root};
 
     while (current != nullptr) {
       if (key == current->Key()) {
-        return *current;
-      }
-
-      if (key > current->Key()) {
-        current = current->left;
+        return current->Value();
       }
 
       if (key < current->Key()) {
+        if (current->left == nullptr) {
+          break;
+        }
+
+        current = current->left;
+        continue;
+      }
+
+      if (key > current->Key()) {
+        if (current->right == nullptr) {
+          break;
+        }
+
         current = current->right;
+        continue;
+      }
+    }
+
+    Node* to_add = Node::CreateNode(key);
+    current->add_child(*to_add);
+    size_++;
+
+    return to_add->Value();
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::search_node(K key) const -> std::optional<NodeSearch> {
+    if (root == nullptr) {
+      return std::nullopt;
+    }
+
+    std::size_t depth = 0;
+    Node* current{root};
+
+    while (current != nullptr) {
+      if (key == current->Key()) {
+        return NodeSearch{*current, depth};
+      }
+
+      depth++;
+
+      if (key < current->Key()) {
+        if (current->left == nullptr) {
+          break;
+        }
+
+        current = current->left;
+        continue;
+      }
+
+      if (key > current->Key()) {
+        if (current->right == nullptr) {
+          break;
+        }
+
+        current = current->right;
+        continue;
       }
     }
 
@@ -187,9 +204,9 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::find(const K& key) -> iterator {
-    NodeSearch search = search_node(key);
+    std::optional<NodeSearch> search = search_node(key);
     if (search.has_value()) {
-      return &search.value().get();
+      return &search.value().node;
     }
 
     return end_it;
@@ -214,9 +231,9 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::find(const K& key) const -> const_iterator {
-    NodeSearch search = search_node(key);
+    std::optional<NodeSearch> search = search_node(key);
     if (search.has_value()) {
-      return &search.value().get();
+      return &search.value().node;
     }
 
     return end_it;
@@ -226,7 +243,35 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::sanityCheck() -> bool {
-    return false;
+    if (root == nullptr) {
+      return true;
+    }
+
+    std::vector<Node*> insert_list{root};
+
+    while (!insert_list.empty()) {
+      Node* current = insert_list.front();
+
+      if (current->left != nullptr) {
+        if (current->Value() < current->left->Value()) {
+          return false;
+        }
+
+        insert_list.push_back(current->left);
+      }
+
+      if (current->right != nullptr) {
+        if (current->Value() > current->right->Value()) {
+          return false;
+        }
+
+        insert_list.push_back(current->right);
+      }
+
+      insert_list.pop_back();
+    }
+
+    return true;
   }
 
   /// Node Methods
@@ -276,16 +321,14 @@ namespace CS280 {
     }
 
     // Searching left up-link
-    if (parent != nullptr) {
-      Node* successor = parent;
+    Node* successor = this;
 
-      while (successor != nullptr) {
-        if (successor->is_parent_left()) {
-          return successor;
-        }
-
-        successor = successor->parent;
+    while (successor != nullptr) {
+      if (successor->is_parent_left()) {
+        return successor->parent;
       }
+
+      successor = successor->parent;
     }
 
     return nullptr;
@@ -299,16 +342,14 @@ namespace CS280 {
     }
 
     // Searching right up-link
-    if (parent != nullptr) {
-      Node* predecessor = parent;
+    Node* predecessor = this;
 
-      while (predecessor != nullptr) {
-        if (predecessor->is_parent_right()) {
-          return predecessor;
-        }
-
-        predecessor = predecessor->parent;
+    while (predecessor != nullptr) {
+      if (predecessor->is_parent_right()) {
+        return predecessor->parent;
       }
+
+      predecessor = predecessor->parent;
     }
 
     return nullptr;
@@ -346,7 +387,7 @@ namespace CS280 {
                 << std::endl;
     }
 
-    // TODO: Set the height and depth of this child
+    // TODO: Set the height and balance of this child
     node.parent = this;
 
     if (node.Key() > key) {
@@ -543,6 +584,7 @@ namespace CS280 {
             os << edge << std::endl;
             break;
         }
+
         b = b->decrement();
       }
     }

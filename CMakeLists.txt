@@ -10,7 +10,7 @@ set(CMAKE_C_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 
 # Compile Options
-add_compile_options(-Wall -Wextra -std=c++17 -Wold-style-cast -Woverloaded-virtual -Wsign-promo  -Wctor-dtor-privacy -Wnon-virtual-dtor  -Weffc++ -pedantic)
+add_compile_options(-O1 -Wall -Wextra -std=c++17 -Wold-style-cast -Woverloaded-virtual -Wsign-promo  -Wctor-dtor-privacy -Wnon-virtual-dtor  -Weffc++ -pedantic)
 add_compile_options(-fdiagnostics-color=always)
 
 # files to compile

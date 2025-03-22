@@ -94,8 +94,12 @@ namespace CS280 {
       auto operator=(const BSTmap_iterator& rhs) -> BSTmap_iterator_const&;
       auto operator++() -> BSTmap_iterator_const&;
       auto operator++(int) -> BSTmap_iterator_const;
+
+      // TODO: Make these things return const (I love the handout having like 10
+      // mistakes) <3
       auto operator*() -> Node&;
       auto operator->() -> Node*;
+
       auto operator!=(const BSTmap_iterator_const& rhs) -> bool;
       auto operator==(const BSTmap_iterator_const& rhs) -> bool;
 
@@ -163,9 +167,12 @@ namespace CS280 {
   private:
 
     // Alias for type that will be used a lot
-    using NodeSearch = std::optional<std::reference_wrapper<Node>>;
+    struct NodeSearch {
+      Node& node;
+      std::size_t depth;
+    };
 
-    auto search_node(K key) const -> NodeSearch;
+    auto search_node(K key) const -> std::optional<NodeSearch>;
 
     Node* root{nullptr};
     unsigned int size_{0};
