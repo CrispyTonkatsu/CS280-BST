@@ -35,6 +35,8 @@ namespace CS280 {
 
     private:
 
+      auto is_parent_left() const -> bool;
+
       K key;
       V value;
       int height, balance; // optional

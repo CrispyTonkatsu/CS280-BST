@@ -142,15 +142,48 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::Node::increment() -> Node* {}
+  auto BSTmap<K, V>::Node::increment() -> Node* {
+    Node* successor = right;
+
+    if (successor != nullptr) {
+      while (successor->left != 0) {
+        successor = successor->left;
+      }
+
+      return successor;
+    }
+
+    return nullptr;
+  }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::Node::decrement() -> Node* {}
+  auto BSTmap<K, V>::Node::decrement() -> Node* {
+    Node* predecessor = left;
+
+    if (predecessor != nullptr) {
+      while (predecessor->right != 0) {
+        predecessor = predecessor->right;
+      }
+
+      return predecessor;
+    }
+
+    return nullptr;
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::Node::print(std::ostream& os) const -> void {
     // NOTE: Make sure that std::endl is not needed here
     os << value;
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::is_parent_left() const -> bool {
+    if (parent != nullptr) {
+      return parent->left == this;
+    }
+
+    return false;
   }
 
   // Iterator Methods
