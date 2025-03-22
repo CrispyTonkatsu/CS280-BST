@@ -1,7 +1,10 @@
 #ifndef BSTMAP_H
 #define BSTMAP_H
 
+#include <cstddef>
+#include <functional>
 #include <iosfwd>
+#include <optional>
 
 namespace CS280 {
 
@@ -19,6 +22,8 @@ namespace CS280 {
     class Node {
     public:
 
+      static auto CreateNode(K key) -> Node*;
+
       Node(K k, V val, Node* p, int h, int b, Node* l, Node* r);
 
       Node(const Node&) = delete;
@@ -35,7 +40,11 @@ namespace CS280 {
 
     private:
 
+      auto is_parent_right() const -> bool;
       auto is_parent_left() const -> bool;
+
+      auto add_child(Node& node) -> void;
+      auto has_children() const -> bool;
 
       K key;
       V value;
@@ -56,7 +65,10 @@ namespace CS280 {
 
     public:
 
+      // TODO: Add the decrement operator here
+
       BSTmap_iterator(Node* p = nullptr);
+      BSTmap_iterator(BSTmap_iterator& rhs);
       auto operator=(const BSTmap_iterator& rhs) -> BSTmap_iterator&;
       auto operator++() -> BSTmap_iterator&;
       auto operator++(int) -> BSTmap_iterator;
@@ -75,7 +87,10 @@ namespace CS280 {
 
     public:
 
+      // TODO: Add the decrement operator here
+
       BSTmap_iterator_const(Node* p = nullptr);
+      BSTmap_iterator_const(BSTmap_iterator_const& rhs);
       auto operator=(const BSTmap_iterator& rhs) -> BSTmap_iterator_const&;
       auto operator++() -> BSTmap_iterator_const&;
       auto operator++(int) -> BSTmap_iterator_const;
@@ -86,10 +101,6 @@ namespace CS280 {
 
       friend class BSTmap;
     };
-
-    // BSTmap implementation
-    Node* pRoot{nullptr};
-    unsigned int size_{0};
 
     // end iterators are same for all BSTmaps, thus static
     // make BSTmap_iterator a friend
@@ -151,7 +162,13 @@ namespace CS280 {
 
   private:
 
-    // ...
+    // Alias for type that will be used a lot
+    using NodeSearch = std::optional<std::reference_wrapper<Node>>;
+
+    auto search_node(K key) const -> NodeSearch;
+
+    Node* root{nullptr};
+    unsigned int size_{0};
   };
 
   // notice that it doesn't need to be friend

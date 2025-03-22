@@ -1,3 +1,7 @@
+#include <cctype>
+#include <optional>
+#include <ostream>
+#include <vector>
 #define BST_CPP
 
 #ifndef BST_H
@@ -24,21 +28,65 @@ namespace CS280 {
   // Constructors & Destructor
 
   template<typename K, typename V>
-  BSTmap<K, V>::BSTmap(): pRoot(nullptr), size_(0) {}
+  BSTmap<K, V>::BSTmap(): root(nullptr), size_(0) {}
 
   template<typename K, typename V>
-  BSTmap<K, V>::BSTmap(const BSTmap& rhs) // : // ....
-  {
-    // ...
+  BSTmap<K, V>::BSTmap(const BSTmap& rhs): size_(rhs.size_) {
+    if (rhs.root == nullptr) {
+      return;
+    }
+    BSTmap& self = *this;
+
+    std::vector<Node*> insert_list{rhs.root};
+
+    while (!insert_list.empty()) {
+      Node* current = insert_list.front();
+
+      self[current->Key()] = current->Value();
+
+      if (current->left != nullptr) {
+        insert_list.push_back(current->left);
+      }
+
+      if (current->right != nullptr) {
+        insert_list.push_back(current->right);
+      }
+
+      insert_list.pop_back();
+    }
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::operator=(const BSTmap& rhs) -> BSTmap& // ....
-  {
-    // ...
+  auto BSTmap<K, V>::operator=(const BSTmap& rhs) -> BSTmap& {
+    size_ = rhs.size_;
+
+    if (rhs.root == nullptr) {
+      return *this;
+    }
+
+    BSTmap& self = *this;
+
+    std::vector<Node*> insert_list{rhs.root};
+
+    while (!insert_list.empty()) {
+      Node* current = insert_list.front();
+
+      self[current->Key()] = current->Value();
+
+      if (current->left != nullptr) {
+        insert_list.push_back(current->left);
+      }
+
+      if (current->right != nullptr) {
+        insert_list.push_back(current->right);
+      }
+
+      insert_list.pop_back();
+    }
+
+    return *this;
   }
 
-  // Lovely lookup space qualifications -> (BSTmap::BSTmap::~BSTmap) <3
   template<typename K, typename V>
   BSTmap<K, V>::BSTmap::~BSTmap() {}
 
@@ -50,19 +98,83 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::getdepth(Node*& node) const -> unsigned int {
+  auto BSTmap<K, V>::getdepth(Node*& ) const -> unsigned int {
+    // TODO: Calculate the depth
     return 0;
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::operator[](const K& key) -> V& {}
+  auto BSTmap<K, V>::operator[](const K& key) -> V& {
+    if (root == nullptr) {
+      root = Node::CreateNode(key);
+      return root->Value();
+    }
+
+    Node* current{root};
+
+    while (current->has_children()) {
+      if (key == current->Key()) {
+        return current->Value();
+      }
+
+      if (key > current->Key()) {
+        if (current->left == nullptr) {
+          Node* to_add = Node::CreateNode(key);
+          current->add_child(*to_add);
+
+          return to_add->Value();
+        }
+
+        current = current->left;
+      }
+
+      if (key < current->Key()) {
+        if (current->right == nullptr) {
+          Node* to_add = Node::CreateNode(key);
+          current->add_child(*to_add);
+
+          return to_add->Value();
+        }
+
+        current = current->right;
+      }
+    }
+
+    // TODO: Find a better way to indicate error
+    return root->Value();
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::search_node(K key) const -> NodeSearch {
+    if (root == nullptr) {
+      return std::nullopt;
+    }
+
+    Node* current{root};
+
+    while (current != nullptr) {
+      if (key == current->Key()) {
+        return *current;
+      }
+
+      if (key > current->Key()) {
+        current = current->left;
+      }
+
+      if (key < current->Key()) {
+        current = current->right;
+      }
+    }
+
+    return std::nullopt;
+  }
 
   // Iterators
 
   template<typename K, typename V>
   auto BSTmap<K, V>::begin() -> iterator {
-    if (pRoot) {
-      return iterator(pRoot->first());
+    if (root) {
+      return iterator(root->first());
     } else {
       return end_it;
     }
@@ -75,16 +187,21 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::find(const K& key) -> iterator {
+    NodeSearch search = search_node(key);
+    if (search.has_value()) {
+      return &search.value().get();
+    }
+
     return end_it;
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::erase(BSTmap_iterator it) -> void {}
+  auto BSTmap<K, V>::erase(BSTmap_iterator) -> void {}
 
   template<typename K, typename V>
   auto BSTmap<K, V>::begin() const -> const_iterator {
-    if (pRoot) {
-      return const_iterator(pRoot->first());
+    if (root) {
+      return const_iterator(root->first());
     } else {
       return end_it;
     }
@@ -97,6 +214,11 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::find(const K& key) const -> const_iterator {
+    NodeSearch search = search_node(key);
+    if (search.has_value()) {
+      return &search.value().get();
+    }
+
     return end_it;
   }
 
@@ -110,8 +232,13 @@ namespace CS280 {
   /// Node Methods
 
   template<typename K, typename V>
+  auto BSTmap<K, V>::Node::CreateNode(K key) -> Node* {
+    return new Node(key, V(), nullptr, 0, 0, nullptr, nullptr);
+  }
+
+  template<typename K, typename V>
   BSTmap<K, V>::Node::Node(K k, V val, Node* p, int h, int b, Node* l, Node* r):
-      key(k), value(val), parent(p), height(h), balance(b), left(l), right(r) {}
+      key(k), value(val), height(h), balance(b), parent(p), left(l), right(r) {}
 
   template<typename K, typename V>
   auto BSTmap<K, V>::Node::Key() const -> const K& {
@@ -143,14 +270,22 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::Node::increment() -> Node* {
-    Node* successor = right;
+    // Searching right subtree
+    if (right != nullptr) {
+      return right->first();
+    }
 
-    if (successor != nullptr) {
-      while (successor->left != 0) {
-        successor = successor->left;
+    // Searching left up-link
+    if (parent != nullptr) {
+      Node* successor = parent;
+
+      while (successor != nullptr) {
+        if (successor->is_parent_left()) {
+          return successor;
+        }
+
+        successor = successor->parent;
       }
-
-      return successor;
     }
 
     return nullptr;
@@ -158,14 +293,22 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::Node::decrement() -> Node* {
-    Node* predecessor = left;
+    // Searching left subtree
+    if (left != nullptr) {
+      return left->last();
+    }
 
-    if (predecessor != nullptr) {
-      while (predecessor->right != 0) {
-        predecessor = predecessor->right;
+    // Searching right up-link
+    if (parent != nullptr) {
+      Node* predecessor = parent;
+
+      while (predecessor != nullptr) {
+        if (predecessor->is_parent_right()) {
+          return predecessor;
+        }
+
+        predecessor = predecessor->parent;
       }
-
-      return predecessor;
     }
 
     return nullptr;
@@ -178,6 +321,15 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
+  auto BSTmap<K, V>::Node::is_parent_right() const -> bool {
+    if (parent != nullptr) {
+      return parent->right == this;
+    }
+
+    return false;
+  }
+
+  template<typename K, typename V>
   auto BSTmap<K, V>::Node::is_parent_left() const -> bool {
     if (parent != nullptr) {
       return parent->left == this;
@@ -186,67 +338,135 @@ namespace CS280 {
     return false;
   }
 
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::add_child(Node& node) -> void {
+    if (node.Key() == key) {
+      std::cout << "Attempted to add a child with the same key as the parent. "
+                   "Doing nothing instead."
+                << std::endl;
+    }
+
+    // TODO: Set the height and depth of this child
+    node.parent = this;
+
+    if (node.Key() > key) {
+      right = &node;
+    }
+
+    if (node.Key() < key) {
+      left = &node;
+    }
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::has_children() const -> bool {
+    return (left != nullptr) || (right != nullptr);
+  }
+
   // Iterator Methods
 
   template<typename K, typename V>
-  BSTmap<K, V>::BSTmap_iterator::BSTmap_iterator(Node* p) {}
+  BSTmap<K, V>::BSTmap_iterator::BSTmap_iterator(Node* p): p_node(p) {}
+
+  template<typename K, typename V>
+  BSTmap<K, V>::BSTmap_iterator::BSTmap_iterator(BSTmap_iterator& rhs):
+      p_node(rhs.p_node) {}
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator::operator=(const BSTmap_iterator& rhs)
-    -> BSTmap_iterator& {}
+    -> BSTmap_iterator& {
+    p_node = rhs.p_node;
+    return *this;
+  }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator::operator++() -> BSTmap_iterator& {}
+  auto BSTmap<K, V>::BSTmap_iterator::operator++() -> BSTmap_iterator& {
+    p_node = p_node->increment();
+    return *this;
+  }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator::operator++(int) -> BSTmap_iterator {}
+  auto BSTmap<K, V>::BSTmap_iterator::operator++(int) -> BSTmap_iterator {
+    return BSTmap_iterator(p_node->increment());
+  }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator::operator*() -> Node& {}
+  auto BSTmap<K, V>::BSTmap_iterator::operator*() -> Node& {
+    return *p_node;
+  }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator::operator->() -> Node* {}
+  auto BSTmap<K, V>::BSTmap_iterator::operator->() -> Node* {
+    return p_node;
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator::operator!=(const BSTmap_iterator& rhs)
-    -> bool {}
+    -> bool {
+    return p_node != rhs.p_node;
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator::operator==(const BSTmap_iterator& rhs)
-    -> bool {}
+    -> bool {
+    return p_node == rhs.p_node;
+  }
 
   // Const iterator_const Methods
 
   template<typename K, typename V>
-  BSTmap<K, V>::BSTmap_iterator_const::BSTmap_iterator_const(Node* p) {}
+  BSTmap<K, V>::BSTmap_iterator_const::BSTmap_iterator_const(Node* p):
+      p_node(p) {}
+
+  template<typename K, typename V>
+  BSTmap<K, V>::BSTmap_iterator_const::BSTmap_iterator_const(
+    BSTmap_iterator_const& rhs
+  ):
+      p_node(rhs.p_node) {}
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator_const::operator=(const BSTmap_iterator& rhs
-  ) -> BSTmap_iterator_const& {}
+  ) -> BSTmap_iterator_const& {
+    p_node = rhs.p_node;
+    return *this;
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator_const::operator++()
-    -> BSTmap_iterator_const& {}
+    -> BSTmap_iterator_const& {
+    p_node = p_node->increment();
+    return *this;
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator_const::operator++(int)
-    -> BSTmap_iterator_const {}
+    -> BSTmap_iterator_const {
+    return BSTmap_iterator_const(p_node->increment());
+  }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator*() -> Node& {}
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator*() -> Node& {
+    return *p_node;
+  }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator->() -> Node* {}
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator->() -> Node* {
+    return p_node;
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator_const::operator!=(
     const BSTmap_iterator_const& rhs
-  ) -> bool {}
+  ) -> bool {
+    return p_node != rhs.p_node;
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator_const::operator==(
     const BSTmap_iterator_const& rhs
-  ) -> bool {}
+  ) -> bool {
+    return p_node == rhs.p_node;
+  }
 
   ////////////////////////////////////////////////////////////
   // do not change this code from here to the end of the file
@@ -275,8 +495,8 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::print(std::ostream& os, bool print_value) const -> void {
-    if (pRoot) {
-      BSTmap<K, V>::Node* b = pRoot->last();
+    if (root) {
+      BSTmap<K, V>::Node* b = root->last();
       while (b) {
         int depth = getdepth(b);
         int i;
