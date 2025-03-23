@@ -1,8 +1,6 @@
 #ifndef BSTMAP_H
 #define BSTMAP_H
 
-#include <cstddef>
-#include <functional>
 #include <iosfwd>
 #include <optional>
 
@@ -174,6 +172,7 @@ namespace CS280 {
     };
 
     auto search_node(K key) const -> std::optional<NodeSearch>;
+    auto clear() -> void;
 
     Node* root{nullptr};
     unsigned int size_{0};

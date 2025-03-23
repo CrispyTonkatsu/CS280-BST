@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <iterator>
 #include <list>
 #include <optional>
 #include <ostream>
@@ -91,7 +90,9 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  BSTmap<K, V>::BSTmap::~BSTmap() {}
+  BSTmap<K, V>::BSTmap::~BSTmap() {
+    clear();
+  }
 
   // Getters and setters
 
@@ -189,6 +190,31 @@ namespace CS280 {
     return std::nullopt;
   }
 
+  template<typename K, typename V>
+  auto BSTmap<K, V>::clear() -> void {
+    if (root == nullptr) {
+      return;
+    }
+
+    std::list<Node*> deletion_queue{root};
+
+    while (!deletion_queue.empty()) {
+      Node* to_delete = deletion_queue.front();
+
+      if (to_delete->left != nullptr) {
+        deletion_queue.push_back(to_delete->left);
+      }
+
+      if (to_delete->right != nullptr) {
+        deletion_queue.push_back(to_delete->right);
+      }
+
+      deletion_queue.pop_front();
+
+      delete to_delete;
+    }
+  }
+
   // Iterators
 
   template<typename K, typename V>
@@ -223,7 +249,6 @@ namespace CS280 {
 
     Node* node = it.p_node;
     Node* parent = node->parent;
-    size_--;
 
     if (!node->has_children()) {
       if (node->is_left_child()) {
@@ -238,6 +263,7 @@ namespace CS280 {
         root = nullptr;
       }
 
+      size_--;
       delete node;
       return;
     }
@@ -260,6 +286,7 @@ namespace CS280 {
 
       only_child->parent = parent;
 
+      size_--;
       delete node;
       return;
     }
@@ -304,9 +331,18 @@ namespace CS280 {
     }
 
     std::list<Node*> insert_list{root};
+    std::vector<K> seen_keys{};
 
     while (!insert_list.empty()) {
       Node* current = insert_list.front();
+
+      if (std::find(seen_keys.begin(), seen_keys.end(), current->key)
+          != seen_keys.cend()) {
+        std::cout << "Found repeat key: " << current->key << std::endl;
+        return false;
+      }
+
+      seen_keys.push_back(current->key);
 
       if (current->left != nullptr) {
         if (current->Value() <= current->left->Value()) {
@@ -420,7 +456,6 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::Node::print(std::ostream& os) const -> void {
-    // NOTE: Make sure that std::endl is not needed here
     os << value;
   }
 
@@ -521,7 +556,9 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator::operator++(int) -> BSTmap_iterator {
-    return BSTmap_iterator(p_node->increment());
+    BSTmap_iterator output = BSTmap_iterator(p_node);
+    p_node = p_node->increment();
+    return output;
   }
 
   template<typename K, typename V>
@@ -575,7 +612,9 @@ namespace CS280 {
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator_const::operator++(int)
     -> BSTmap_iterator_const {
-    return BSTmap_iterator_const(p_node->increment());
+    BSTmap_iterator_const output = BSTmap_iterator_const(p_node);
+    p_node = p_node->increment();
+    return output;
   }
 
   template<typename K, typename V>

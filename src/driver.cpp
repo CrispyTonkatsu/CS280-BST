@@ -17,7 +17,9 @@ void simple_inserts(
   for (const int& key: data) {
     map[key] = key * key; // value is not important
     // if you have the method below, uncomment next line
-    // if (!map.sanityCheck()) std::cout << "Error\n";
+    if (!map.sanityCheck()) {
+      std::cout << "Error\n";
+    }
   }
 }
 
@@ -114,14 +116,16 @@ void test5() {
 // try larger N
 // check with Dr. Memory - better catch error now
 void test6() {
-  int N = 100;
+  int N = 1000;
   CS280::BSTmap<int, int> map;
   std::vector<int> data(N);
   std::iota(data.begin(), data.end(), 1);
   std::shuffle(data.begin(), data.end(), std::mt19937{std::random_device{}()});
 
   simple_inserts(map, data);
-  std::cout << map << std::endl;
+
+  // NOTE: This prints the map, makes quick testing annoying
+  // std::cout << map << std::endl;
 
   // reshuffle data
   std::shuffle(data.begin(), data.end(), std::mt19937{std::random_device{}()});

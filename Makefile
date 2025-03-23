@@ -11,6 +11,7 @@ MSCDEFINE=
 DEFINE=
 
 VALGRIND_OPTIONS=-q --leak-check=full
+DIFF_OPTIONS= -y --strip-trailing-cr --suppress-common-lines -b
 
 OSTYPE := $(shell uname)
 ifeq ($(OSTYPE),Linux)
