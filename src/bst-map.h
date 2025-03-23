@@ -47,7 +47,10 @@ namespace CS280 {
 
       K key;
       V value;
+
+      // TODO: Actually use the values (what is the balance lmfao)
       int height, balance; // optional
+
       Node* parent;
       Node* left;
       Node* right;
@@ -64,13 +67,13 @@ namespace CS280 {
 
     public:
 
-      // TODO: Add the decrement operator here
-
       BSTmap_iterator(Node* p = nullptr);
       BSTmap_iterator(BSTmap_iterator& rhs);
       auto operator=(const BSTmap_iterator& rhs) -> BSTmap_iterator&;
       auto operator++() -> BSTmap_iterator&;
       auto operator++(int) -> BSTmap_iterator;
+      auto operator--() -> BSTmap_iterator&;
+      auto operator--(int) -> BSTmap_iterator;
       auto operator*() -> Node&;
       auto operator->() -> Node*;
       auto operator!=(const BSTmap_iterator& rhs) -> bool;
@@ -86,19 +89,15 @@ namespace CS280 {
 
     public:
 
-      // TODO: Add the decrement operator here
-
       BSTmap_iterator_const(Node* p = nullptr);
       BSTmap_iterator_const(BSTmap_iterator_const& rhs);
-      auto operator=(const BSTmap_iterator& rhs) -> BSTmap_iterator_const&;
+      auto operator=(const BSTmap_iterator_const& rhs) -> BSTmap_iterator_const&;
       auto operator++() -> BSTmap_iterator_const&;
       auto operator++(int) -> BSTmap_iterator_const;
-
-      // TODO: Make these things return const (I love the handout having like 10
-      // mistakes) <3
-      auto operator*() -> Node&;
-      auto operator->() -> Node*;
-
+      auto operator--() -> BSTmap_iterator_const&;
+      auto operator--(int) -> BSTmap_iterator_const;
+      auto operator*() -> const Node&;
+      auto operator->() -> const Node*;
       auto operator!=(const BSTmap_iterator_const& rhs) -> bool;
       auto operator==(const BSTmap_iterator_const& rhs) -> bool;
 

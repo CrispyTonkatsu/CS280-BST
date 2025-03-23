@@ -1,8 +1,7 @@
 #include <algorithm>
-#include <cstddef>
 #include <list>
 #include <optional>
-#include <ostream>
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -12,7 +11,6 @@
   #include "bst-map.h"
 #endif
 
-#include <iostream>
 
 namespace CS280 {
 
@@ -513,7 +511,6 @@ namespace CS280 {
       return;
     }
 
-    // TODO: Set the height and balance of this child
     node.parent = this;
 
     if (node.Key() > key) {
@@ -589,6 +586,19 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator--() -> BSTmap_iterator& {
+    p_node = p_node->decrement();
+    return *this;
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator::operator--(int) -> BSTmap_iterator {
+    BSTmap_iterator output = BSTmap_iterator(p_node);
+    p_node = p_node->decrement();
+    return output;
+  }
+
+  template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator::operator*() -> Node& {
     return *p_node;
   }
@@ -623,7 +633,7 @@ namespace CS280 {
       p_node(rhs.p_node) {}
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator=(const BSTmap_iterator& rhs
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator=(const BSTmap_iterator_const& rhs
   ) -> BSTmap_iterator_const& {
     p_node = rhs.p_node;
     return *this;
@@ -645,12 +655,25 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator*() -> Node& {
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator--() -> BSTmap_iterator_const& {
+    p_node = p_node->decrement();
+    return *this;
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator--(int) -> BSTmap_iterator_const {
+    BSTmap_iterator_const output = BSTmap_iterator_const(p_node);
+    p_node = p_node->decrement();
+    return output;
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator*() -> const Node& {
     return *p_node;
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator->() -> Node* {
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator->() -> const Node* {
     return p_node;
   }
 
