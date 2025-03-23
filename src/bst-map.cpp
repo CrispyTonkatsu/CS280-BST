@@ -1,6 +1,9 @@
+#include <algorithm>
 #include <iterator>
+#include <list>
 #include <optional>
 #include <ostream>
+#include <utility>
 #include <vector>
 #define BST_CPP
 
@@ -213,7 +216,60 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::erase(BSTmap_iterator) -> void {}
+  auto BSTmap<K, V>::erase(BSTmap_iterator it) -> void {
+    if (it == end_it) {
+      return;
+    }
+
+    Node* node = it.p_node;
+    Node* parent = node->parent;
+    size_--;
+
+    if (!node->has_children()) {
+      if (node->is_left_child()) {
+        parent->left = nullptr;
+      }
+
+      if (node->is_right_child()) {
+        parent->right = nullptr;
+      }
+
+      if (root == node) {
+        root = nullptr;
+      }
+
+      delete node;
+      return;
+    }
+
+    std::optional<Node*> only_child_opt = node->get_only_child();
+    if (only_child_opt.has_value()) {
+      Node* only_child = only_child_opt.value();
+
+      if (node->is_left_child()) {
+        parent->left = only_child;
+      }
+
+      if (node->is_right_child()) {
+        parent->right = only_child;
+      }
+
+      if (root == node) {
+        root = only_child;
+      }
+
+      only_child->parent = parent;
+
+      delete node;
+      return;
+    }
+
+    Node* predecessor = node->left->last();
+    node->key = std::move(predecessor->key);
+    node->value = std::move(predecessor->value);
+
+    erase(iterator(predecessor));
+  }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::begin() const -> const_iterator {
@@ -247,13 +303,13 @@ namespace CS280 {
       return true;
     }
 
-    std::vector<Node*> insert_list{root};
+    std::list<Node*> insert_list{root};
 
     while (!insert_list.empty()) {
       Node* current = insert_list.front();
 
       if (current->left != nullptr) {
-        if (current->Value() < current->left->Value()) {
+        if (current->Value() <= current->left->Value()) {
           return false;
         }
 
@@ -261,14 +317,21 @@ namespace CS280 {
       }
 
       if (current->right != nullptr) {
-        if (current->Value() > current->right->Value()) {
+        if (current->Value() >= current->right->Value()) {
           return false;
         }
 
         insert_list.push_back(current->right);
       }
 
-      insert_list.pop_back();
+      insert_list.pop_front();
+
+      if (std::find(insert_list.begin(), insert_list.end(), current)
+          != insert_list.cend()) {
+        std::cout << "Circular reference found: Node of key =  " << current->key
+                  << std::endl;
+        return false;
+      }
     }
 
     return true;
@@ -324,7 +387,7 @@ namespace CS280 {
     Node* successor = this;
 
     while (successor != nullptr) {
-      if (successor->is_parent_left()) {
+      if (successor->is_left_child()) {
         return successor->parent;
       }
 
@@ -345,7 +408,7 @@ namespace CS280 {
     Node* predecessor = this;
 
     while (predecessor != nullptr) {
-      if (predecessor->is_parent_right()) {
+      if (predecessor->is_right_child()) {
         return predecessor->parent;
       }
 
@@ -362,7 +425,7 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::Node::is_parent_right() const -> bool {
+  auto BSTmap<K, V>::Node::is_right_child() const -> bool {
     if (parent != nullptr) {
       return parent->right == this;
     }
@@ -371,7 +434,7 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::Node::is_parent_left() const -> bool {
+  auto BSTmap<K, V>::Node::is_left_child() const -> bool {
     if (parent != nullptr) {
       return parent->left == this;
     }
@@ -419,6 +482,19 @@ namespace CS280 {
   template<typename K, typename V>
   auto BSTmap<K, V>::Node::has_children() const -> bool {
     return (left != nullptr) || (right != nullptr);
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::get_only_child() -> std::optional<Node*> {
+    if (left != nullptr && right == nullptr) {
+      return left;
+    }
+
+    if (left == nullptr && right != nullptr) {
+      return right;
+    }
+
+    return std::nullopt;
   }
 
   // Iterator Methods

@@ -77,7 +77,9 @@ void simple_deletes(
     } else {
       map.erase(it);
       // if you have the method below, uncomment next line
-      // if (!map.sanityCheck()) std::cout << "Error\n";
+      if (!map.sanityCheck()) {
+        std::cout << "Error\n";
+      }
     }
   }
 

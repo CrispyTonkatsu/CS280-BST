@@ -40,11 +40,12 @@ namespace CS280 {
 
     private:
 
-      auto is_parent_right() const -> bool;
-      auto is_parent_left() const -> bool;
+      auto is_right_child() const -> bool;
+      auto is_left_child() const -> bool;
 
       auto add_child(Node& node) -> void;
       auto has_children() const -> bool;
+      auto get_only_child() -> std::optional<Node*>;
 
       K key;
       V value;
