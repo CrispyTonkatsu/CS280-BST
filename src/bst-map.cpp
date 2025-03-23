@@ -385,16 +385,33 @@ namespace CS280 {
       std::cout << "Attempted to add a child with the same key as the parent. "
                    "Doing nothing instead."
                 << std::endl;
+      return;
     }
 
     // TODO: Set the height and balance of this child
     node.parent = this;
 
     if (node.Key() > key) {
+      if (right != nullptr) {
+        std::cout
+          << "Attempted to add a child with the same key as the parent. "
+             "Doing nothing instead."
+          << std::endl;
+        return;
+      }
+
       right = &node;
     }
 
     if (node.Key() < key) {
+      if (left != nullptr) {
+        std::cout
+          << "Attempted to add a child with the same key as the parent. "
+             "Doing nothing instead."
+          << std::endl;
+        return;
+      }
+
       left = &node;
     }
   }
