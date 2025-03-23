@@ -118,9 +118,8 @@ namespace CS280 {
     BSTmap(const BSTmap& rhs);
     auto operator=(const BSTmap& rhs) -> BSTmap&;
 
-    // TODO: Implement move stuff:
-    // BSTmap(BSTmap &&rhs);
-    // BSTmap &operator=(BSTmap &&rhs);
+    BSTmap(BSTmap&& rhs);
+    BSTmap& operator=(BSTmap&& rhs);
 
     virtual ~BSTmap();
 

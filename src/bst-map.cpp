@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <cstddef>
 #include <list>
 #include <optional>
 #include <ostream>
 #include <utility>
 #include <vector>
+
 #define BST_CPP
 
 #ifndef BST_H
@@ -37,9 +39,10 @@ namespace CS280 {
     if (rhs.root == nullptr) {
       return;
     }
+
     BSTmap& self = *this;
 
-    std::vector<Node*> insert_list{rhs.root};
+    std::list<Node*> insert_list{rhs.root};
 
     while (!insert_list.empty()) {
       Node* current = insert_list.front();
@@ -54,13 +57,13 @@ namespace CS280 {
         insert_list.push_back(current->right);
       }
 
-      insert_list.pop_back();
+      insert_list.pop_front();
     }
   }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::operator=(const BSTmap& rhs) -> BSTmap& {
-    size_ = rhs.size_;
+    clear();
 
     if (rhs.root == nullptr) {
       return *this;
@@ -68,7 +71,7 @@ namespace CS280 {
 
     BSTmap& self = *this;
 
-    std::vector<Node*> insert_list{rhs.root};
+    std::list<Node*> insert_list{rhs.root};
 
     while (!insert_list.empty()) {
       Node* current = insert_list.front();
@@ -83,8 +86,24 @@ namespace CS280 {
         insert_list.push_back(current->right);
       }
 
-      insert_list.pop_back();
+      insert_list.pop_front();
     }
+
+    return *this;
+  }
+
+  template<typename K, typename V>
+  BSTmap<K, V>::BSTmap(BSTmap&& rhs) {
+    std::swap(root, rhs.root);
+    std::swap(size_, rhs.size_);
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::operator=(BSTmap&& rhs) -> BSTmap& {
+    clear();
+
+    std::swap(root, rhs.root);
+    std::swap(size_, rhs.size_);
 
     return *this;
   }
@@ -197,6 +216,7 @@ namespace CS280 {
     }
 
     std::list<Node*> deletion_queue{root};
+    root = nullptr;
 
     while (!deletion_queue.empty()) {
       Node* to_delete = deletion_queue.front();
@@ -211,6 +231,7 @@ namespace CS280 {
 
       deletion_queue.pop_front();
 
+      size_--;
       delete to_delete;
     }
   }
@@ -332,6 +353,7 @@ namespace CS280 {
 
     std::list<Node*> insert_list{root};
     std::vector<K> seen_keys{};
+    std::size_t measured_size{0};
 
     while (!insert_list.empty()) {
       Node* current = insert_list.front();
@@ -361,6 +383,7 @@ namespace CS280 {
       }
 
       insert_list.pop_front();
+      measured_size++;
 
       if (std::find(insert_list.begin(), insert_list.end(), current)
           != insert_list.cend()) {
@@ -368,6 +391,10 @@ namespace CS280 {
                   << std::endl;
         return false;
       }
+    }
+
+    if (measured_size != size()) {
+      return false;
     }
 
     return true;
