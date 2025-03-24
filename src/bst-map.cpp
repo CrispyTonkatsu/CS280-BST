@@ -11,7 +11,6 @@
   #include "bst-map.h"
 #endif
 
-
 namespace CS280 {
 
   // static data members
@@ -61,6 +60,10 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::operator=(const BSTmap& rhs) -> BSTmap& {
+    if (this == &rhs) {
+      return *this;
+    }
+
     clear();
 
     if (rhs.root == nullptr) {
@@ -91,17 +94,16 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  BSTmap<K, V>::BSTmap(BSTmap&& rhs) {
-    std::swap(root, rhs.root);
-    std::swap(size_, rhs.size_);
-  }
+  BSTmap<K, V>::BSTmap(BSTmap&& rhs):
+      root(std::exchange(rhs.root, nullptr)),
+      size_(std::exchange(rhs.size_, 0)) {}
 
   template<typename K, typename V>
   auto BSTmap<K, V>::operator=(BSTmap&& rhs) -> BSTmap& {
     clear();
 
-    std::swap(root, rhs.root);
-    std::swap(size_, rhs.size_);
+    root = std::exchange(rhs.root, nullptr);
+    size_ = std::exchange(rhs.size_, 0);
 
     return *this;
   }
@@ -633,7 +635,8 @@ namespace CS280 {
       p_node(rhs.p_node) {}
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator=(const BSTmap_iterator_const& rhs
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator=(
+    const BSTmap_iterator_const& rhs
   ) -> BSTmap_iterator_const& {
     p_node = rhs.p_node;
     return *this;
@@ -655,13 +658,15 @@ namespace CS280 {
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator--() -> BSTmap_iterator_const& {
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator--()
+    -> BSTmap_iterator_const& {
     p_node = p_node->decrement();
     return *this;
   }
 
   template<typename K, typename V>
-  auto BSTmap<K, V>::BSTmap_iterator_const::operator--(int) -> BSTmap_iterator_const {
+  auto BSTmap<K, V>::BSTmap_iterator_const::operator--(int)
+    -> BSTmap_iterator_const {
     BSTmap_iterator_const output = BSTmap_iterator_const(p_node);
     p_node = p_node->decrement();
     return output;

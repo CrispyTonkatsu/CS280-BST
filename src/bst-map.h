@@ -6,8 +6,21 @@
 
 namespace CS280 {
 
+  /**
+   * @brief This class represents a binary search tree using key K and stores
+   * values of type V. It has support for the following operations:
+   * - Insert
+   * - Find
+   * - Erase
+   *
+   * @param K The type for the key to be used (Needs the < and > operator
+   * overloads)
+   * @param V The type for the values to be used (Needs to be copiable)
+   */
   template<typename K, typename V>
   class BSTmap {
+
+    // Forward declarations for the struct
     struct BSTmap_iterator;
     struct BSTmap_iterator_const;
 
@@ -17,44 +30,142 @@ namespace CS280 {
     typedef BSTmap_iterator iterator;
     typedef BSTmap_iterator_const const_iterator;
 
+    /**
+     * @brief This class represents a Node in the BST. It mainly features
+     * getters, setters and traversal methods.
+     */
     class Node {
     public:
 
+      /**
+       * @brief Factory method for an empty unlinked node of key K.
+       *
+       * @param key The key to use.
+       * @return Pointer to allocated node.
+       */
       static auto CreateNode(K key) -> Node*;
 
+      /**
+       * @brief Constructor for a Node.
+       *
+       * @param k The key of this node.
+       * @param v The value of this node.
+       * @param h The node's height.
+       * @param b The node's balance.
+       * @param l The left child's pointer.
+       * @param r The right child's pointer.
+       */
       Node(K k, V val, Node* p, int h, int b, Node* l, Node* r);
 
+      // Deleted copy constructor
       Node(const Node&) = delete;
+
+      // Deleted copy assignment operator
       auto operator=(const Node&) -> Node& = delete;
 
+      /**
+       * @brief Getter of a reference to the key of this node.
+       * @return Const reference to the key.
+       */
       auto Key() const -> const K&; // return a const reference
-      auto Value() -> V&;           // return a reference
 
-      auto first() -> Node*;        // minimum - follow left as far as possible
-      auto last() -> Node*;         // maximum - follow right as far as possible
-      auto increment() -> Node*;    // successor
-      auto decrement() -> Node*;    // predecessor
+      /**
+       * @brief Getter of a reference to the value of this node.
+       * @return Reference to the value.
+       */
+      auto Value() -> V&; // return a reference
+
+      /**
+       * @brief Function to get the node furthest left of a node.
+       * @return Pointer to the node.
+       */
+      auto first() -> Node*; // minimum - follow left as far as possible
+
+      /**
+       * @brief Function to get the node furthest right of a node.
+       * @return Pointer to the node.
+       */
+      auto last() -> Node*; // maximum - follow right as far as possible
+
+      /**
+       * @brief Will get the node's successor
+       * @return Pointer to the node.
+       */
+      auto increment() -> Node*; // successor
+
+      /**
+       * @brief Will get the node's predecessor
+       * @return Pointer to the node.
+       */
+      auto decrement() -> Node*; // predecessor
+
+      /**
+       * @brief Prints a node
+       */
       auto print(std::ostream& os) const -> void;
 
     private:
 
+      /**
+       * @brief Returns whether this node is the right child of a node.
+       * @return Whether it is the right child.
+       */
       auto is_right_child() const -> bool;
+
+      /**
+       * @brief Returns whether this node is the left child of a node.
+       * @return Whether it is the left child.
+       */
       auto is_left_child() const -> bool;
 
+      /**
+       * @brief Will add a child updating the links properly and setting it to
+       * the correct side.
+       */
       auto add_child(Node& node) -> void;
+
+      /**
+       * @brief Returns whether the node has children or not.
+       * @return Whether the node has children.
+       */
       auto has_children() const -> bool;
+
+      /**
+       * @brief Gets the only child this node has.
+       * @return Optional pointer to the node. If there are 2 children nodes it
+       * returns nullopt.
+       */
       auto get_only_child() -> std::optional<Node*>;
 
+      /**
+       * @brief The key of this node.
+       */
       K key;
+
+      /**
+       * @brief The value that is being held by the node.
+       */
       V value;
 
-      // TODO: Actually use the values (what is the balance lmfao)
+      // NOTE: Actually use the values for the AVL assignment
       int height, balance; // optional
 
+      /**
+       * @brief The parent of this node
+       */
       Node* parent;
+
+      /**
+       * @brief The left child's pointer
+       */
       Node* left;
+
+      /**
+       * @brief The right child's pointer
+       */
       Node* right;
 
+      // Friending the BSTmap class so the internals can be accessed.
       friend class BSTmap;
     };
 
@@ -91,7 +202,8 @@ namespace CS280 {
 
       BSTmap_iterator_const(Node* p = nullptr);
       BSTmap_iterator_const(BSTmap_iterator_const& rhs);
-      auto operator=(const BSTmap_iterator_const& rhs) -> BSTmap_iterator_const&;
+      auto operator=(const BSTmap_iterator_const& rhs)
+        -> BSTmap_iterator_const&;
       auto operator++() -> BSTmap_iterator_const&;
       auto operator++(int) -> BSTmap_iterator_const;
       auto operator--() -> BSTmap_iterator_const&;
