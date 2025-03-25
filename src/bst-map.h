@@ -1,3 +1,12 @@
+/**
+ * @file bst-map.hpp
+ * @author Edgar Jose Donoso Mansilla (e.donosomansilla)
+ * @course CS280
+ * @term Spring 2025
+ *
+ * @brief Implementation for a binary search tree
+ */
+
 #ifndef BSTMAP_H
 #define BSTMAP_H
 
@@ -171,46 +180,150 @@ namespace CS280 {
 
   private:
 
+    /**
+     * @brief This class is the non const iterator of the map
+     */
     struct BSTmap_iterator {
     private:
 
+      /**
+       * @brief Pointer to the iterator's node.
+       */
       Node* p_node;
 
     public:
 
+      /**
+       * @brief Constructor for the iterator
+       * @param Pointer to the node
+       */
       BSTmap_iterator(Node* p = nullptr);
+
+      /**
+       * @brief Copy constructor for the iterator
+       */
       BSTmap_iterator(BSTmap_iterator& rhs);
+
+      /**
+       * @brief Copy assignment operator
+       */
       auto operator=(const BSTmap_iterator& rhs) -> BSTmap_iterator&;
+
+      /**
+       * @brief Pre-increment operator (successor)
+       */
       auto operator++() -> BSTmap_iterator&;
+
+      /**
+       * @brief Post-increment operator (successor)
+       */
       auto operator++(int) -> BSTmap_iterator;
+
+      /**
+       * @brief Pre-decrement operator (predecessor)
+       */
       auto operator--() -> BSTmap_iterator&;
+
+      /**
+       * @brief Post-decrement operator (predecessor)
+       */
       auto operator--(int) -> BSTmap_iterator;
+
+      /**
+       * @brief Dereferencing operator.
+       * @return Reference to the node.
+       */
       auto operator*() -> Node&;
+
+      /**
+       * @brief Arrow operator.
+       * @return Pointer to the node.
+       */
       auto operator->() -> Node*;
+
+      /**
+       * @brief Inequality operator.
+       */
       auto operator!=(const BSTmap_iterator& rhs) -> bool;
+
+      /**
+       * @brief Equality operator.
+       */
       auto operator==(const BSTmap_iterator& rhs) -> bool;
 
       friend class BSTmap;
     };
 
+    /**
+     * @brief This class is the const iterator of the map
+     */
     struct BSTmap_iterator_const {
     private:
 
+      /**
+       * @brief Pointer to the iterator's node.
+       */
       Node* p_node;
 
     public:
 
+      /**
+       * @brief Constructor for the iterator
+       * @param Pointer to the node
+       */
       BSTmap_iterator_const(Node* p = nullptr);
+
+      /**
+       * @brief Copy constructor for the iterator
+       */
       BSTmap_iterator_const(BSTmap_iterator_const& rhs);
+
+      /**
+       * @brief Copy assignment operator
+       */
       auto operator=(const BSTmap_iterator_const& rhs)
         -> BSTmap_iterator_const&;
+
+      /**
+       * @brief Pre-increment operator (successor)
+       */
       auto operator++() -> BSTmap_iterator_const&;
+
+      /**
+       * @brief Post-increment operator (successor)
+       */
       auto operator++(int) -> BSTmap_iterator_const;
+
+      /**
+       * @brief Pre-decrement operator (predecessor)
+       */
       auto operator--() -> BSTmap_iterator_const&;
+
+      /**
+       * @brief Post-decrement operator (predecessor)
+       */
       auto operator--(int) -> BSTmap_iterator_const;
+
+      /**
+       * @brief Dereferencing operator.
+       * @return Reference to the node.
+       */
       auto operator*() -> const Node&;
+
+      /**
+       * @brief Arrow operator.
+       * @return Pointer to the node.
+       */
       auto operator->() -> const Node*;
+
+      /**
+       * @brief Inequality operator.
+       */
       auto operator!=(const BSTmap_iterator_const& rhs) -> bool;
+
+      /**
+       * @brief Equality operator.
+       */
       auto operator==(const BSTmap_iterator_const& rhs) -> bool;
 
       friend class BSTmap;
@@ -225,19 +338,55 @@ namespace CS280 {
   public:
 
     // Rule of 5
+
+    /**
+     * @brief Constructor
+     */
     BSTmap();
+
+    /**
+     * @brief Copy Constructor
+     */
     BSTmap(const BSTmap& rhs);
+
+    /**
+     * @brief Copy Assignment Operator
+     */
     auto operator=(const BSTmap& rhs) -> BSTmap&;
 
+    /**
+     * @brief Move Constructor
+     */
     BSTmap(BSTmap&& rhs);
+
+    /**
+     * @brief Move Assignment Operator
+     */
     BSTmap& operator=(BSTmap&& rhs);
 
+    /**
+     * @brief Virtual Destructor
+     */
     virtual ~BSTmap();
 
+    /**
+     * @brief Getter for the size
+     * @return The size of the tree
+     */
     auto size() -> unsigned int;
+
+    /**
+     * @brief Getter for the depth of a node in the tree
+     * @param node The node to get the depth of
+     * @return The depth of the given node
+     */
     auto getdepth(Node*& node) const -> unsigned int;
 
-    // value setter and getter
+    /**
+     * @brief Indexer for the map
+     * @param key The key to search for (will create a node if there isn't one)
+     * @return Reference to the value
+     */
     auto operator[](const K& key) -> V&;
 
     // next method doesn't make sense
@@ -245,24 +394,59 @@ namespace CS280 {
     // which is not allowed on const maps
     // VALUE_TYPE operator[](int key) const;
 
-    // BSTmap methods dealing with non-const iterator
+    /**
+     * @brief Returns an iterator to the first node of the tree
+     */
     auto begin() -> iterator;
+
+    /**
+     * @brief Returns an iterator to the last node of the tree
+     */
     auto end() -> iterator;
+
+    /**
+     * @brief Searches for a value using the key
+     */
     auto find(const K& key) -> iterator;
+
+    /**
+     * @brief Searches for a value using the key and erases it
+     */
     auto erase(iterator it) -> void;
 
-    // BSTmap methods dealing with const iterator
+    /**
+     * @brief Returns an iterator to the first node of the tree
+     */
     auto begin() const -> const_iterator;
+
+    /**
+     * @brief Returns an iterator to the last node of the tree
+     */
     auto end() const -> const_iterator;
+
+    /**
+     * @brief Searches for a value using the key
+     */
     auto find(const K& key) const -> const_iterator;
+
     // do not need this one (why) (because const functions should not be able to
     // edit the tree) BSTmap_iterator_const erase(BSTmap_iterator& it) const;
 
-    // Checking methods
+    /**
+     * @brief Integrity for the check of the tree
+     * @return Whether the tree is valid
+     */
     auto sanityCheck() -> bool;
 
-    // Printing methods
+    /**
+     * @brief Get the edge to display the tree for a given node
+     * @return The character to use for rendering
+     */
     auto get_edge_symbol(const Node* node) const -> char;
+
+    /**
+     * @brief Print method for the tree
+     */
     auto print(std::ostream& os, bool print_value = false) const -> void;
 
     // inner class (BSTmap_iterator) doesn't have any special priveleges
@@ -275,20 +459,43 @@ namespace CS280 {
 
   private:
 
-    // Alias for type that will be used a lot
+    /**
+     * @brief Result of a node query
+     */
     struct NodeSearch {
       Node& node;
       std::size_t depth;
     };
 
+    /**
+     * @brief Search for a given node with a key
+     * @param key The key to search for
+     * @return Optional to the found node
+     */
     auto search_node(K key) const -> std::optional<NodeSearch>;
+
+    /**
+     * @brief Delete the whole tree
+     */
     auto clear() -> void;
 
+    /**
+     * @brief The root of the BST
+     */
     Node* root{nullptr};
+
+    /**
+     * @brief The amount of elements in the BST
+     */
     unsigned int size_{0};
   };
 
-  // notice that it doesn't need to be friend
+  /**
+   * @brief Left bitshift operator for printing
+   * @param os The stream to print to
+   * @param map The map to print
+   * @return The stream that was used to print
+   */
   template<typename KEY_TYPE, typename VALUE_TYPE>
   auto operator<<(std::ostream& os, const BSTmap<KEY_TYPE, VALUE_TYPE>& map)
     -> std::ostream&;

@@ -1,3 +1,12 @@
+/**
+ * @file bst-map.cpp
+ * @author Edgar Jose Donoso Mansilla (e.donosomansilla)
+ * @course CS280
+ * @term Spring 2025
+ *
+ * @brief Implementation for a binary search tree
+ */
+
 #include <algorithm>
 #include <list>
 #include <optional>
