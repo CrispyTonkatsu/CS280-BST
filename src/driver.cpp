@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <iterator> // stream iterator
 #include <numeric>  // iota
 #include <random>
@@ -591,6 +592,73 @@ void test13() {
   }
 }
 
+// stress test move assignment - extra credit, should be constant
+void test14() {
+  int N = 20000;
+
+  // original tree
+  CS280::BSTmap<int, int> map;
+  std::vector<int> data(N); // data to insert
+  std::iota(data.begin(), data.end(), 1);
+  std::shuffle(data.begin(), data.end(), std::mt19937{std::random_device{}()});
+  // insert N elements
+  simple_inserts(map, data);
+
+  // first tree to deep assign to
+  CS280::BSTmap<int, int> map2;
+  std::vector<int> data2(N); // data to insert
+  std::iota(data2.begin(), data2.end(), 1);
+  std::shuffle(
+    data2.begin(),
+    data2.end(),
+    std::mt19937{std::random_device{}()}
+  );
+  // insert N elements
+  simple_inserts(map2, data2);
+
+  // measure deep assignment time
+  std::chrono::time_point<std::chrono::system_clock> start =
+    std::chrono::system_clock::now();
+  map2 = map;
+  std::chrono::time_point<std::chrono::system_clock> stop =
+    std::chrono::system_clock::now();
+  std::chrono::duration<double> deep_assign_elapsed_seconds = stop - start;
+
+  // first tree to deep assign to
+  CS280::BSTmap<int, int> map3;
+  std::vector<int> data3(N); // data to insert
+  std::iota(data3.begin(), data3.end(), 1);
+  std::shuffle(
+    data3.begin(),
+    data3.end(),
+    std::mt19937{std::random_device{}()}
+  );
+  // insert N elements
+  simple_inserts(map3, data3);
+
+  // measure move assignment time
+  start = std::chrono::system_clock::now();
+  map3 = std::move(map);
+  stop = std::chrono::system_clock::now();
+  std::chrono::duration<double> move_assign_elapsed_seconds = stop - start;
+
+  if (move_assign_elapsed_seconds.count()
+      < 0.0001 * deep_assign_elapsed_seconds.count()) {
+    std::cout << "Move assignment may be implemented\n";
+  } else {
+    std::cout << "Move assignment is NOT implemented\n";
+  }
+  // std::cout << move_assign_elapsed_seconds.count()/
+  // deep_assign_elapsed_seconds.count() << "\n";
+
+  // test correctness of move assignment
+  for (const int& key: data) {
+    if (map3.find(key) == map3.end()) {
+      std::cout << "Not found in a move assigned\n";
+    }
+  }
+}
+
 void (*pTests[])(void) = {
   test0,
   test1,
@@ -606,6 +674,7 @@ void (*pTests[])(void) = {
   test11,
   test12,
   test13,
+  test14,
 };
 
 int main(int argc, char** argv) {

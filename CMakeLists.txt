@@ -15,4 +15,9 @@ add_compile_options(-fdiagnostics-color=always)
 
 # files to compile
 add_executable(driver_c ./src/driver.cpp ./src/bst-map.cpp)
+
+add_executable(driver_const_1 ./src/driver-const-1.cpp ./src/bst-map.cpp)
+add_executable(driver_c_const_2 ./src/driver-const-2.cpp ./src/bst-map.cpp)
+# add_executable(driver_c_const_no_compile ./src/driver-const-no-compile.cpp ./src/bst-map.cpp)
+
 add_executable(custom ./src/custom.cpp ./src/bst-map.cpp)

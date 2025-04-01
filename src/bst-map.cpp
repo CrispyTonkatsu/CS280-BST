@@ -333,13 +333,13 @@ namespace CS280 {
     if (root) {
       return const_iterator(root->first());
     } else {
-      return end_it;
+      return const_end_it;
     }
   }
 
   template<typename K, typename V>
   auto BSTmap<K, V>::end() const -> const_iterator {
-    return end_it;
+    return const_end_it;
   }
 
   template<typename K, typename V>
@@ -427,6 +427,11 @@ namespace CS280 {
 
   template<typename K, typename V>
   auto BSTmap<K, V>::Node::Value() -> V& {
+    return value;
+  }
+
+  template<typename K, typename V>
+  auto BSTmap<K, V>::Node::Value() const -> const V& {
     return value;
   }
 
@@ -575,6 +580,11 @@ namespace CS280 {
   template<typename K, typename V>
   BSTmap<K, V>::BSTmap_iterator::BSTmap_iterator(BSTmap_iterator& rhs):
       p_node(rhs.p_node) {}
+
+  template<typename K, typename V>
+  BSTmap<K, V>::BSTmap_iterator::operator BSTmap_iterator_const(){
+  return BSTmap_iterator_const(p_node);
+}
 
   template<typename K, typename V>
   auto BSTmap<K, V>::BSTmap_iterator::operator=(const BSTmap_iterator& rhs)

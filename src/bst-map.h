@@ -85,6 +85,12 @@ namespace CS280 {
       auto Value() -> V&; // return a reference
 
       /**
+       * @brief Getter of a reference to the value of this node.
+       * @return Reference to the value.
+       */
+      auto Value() const -> const V&; // return a reference
+
+      /**
        * @brief Function to get the node furthest left of a node.
        * @return Pointer to the node.
        */
@@ -203,6 +209,11 @@ namespace CS280 {
        * @brief Copy constructor for the iterator
        */
       BSTmap_iterator(BSTmap_iterator& rhs);
+
+      /**
+       * @brief Conversion operator to const iterator
+       */
+      operator BSTmap_iterator_const();
 
       /**
        * @brief Copy assignment operator

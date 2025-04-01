@@ -4,7 +4,7 @@ GCC=g++
 GCCFLAGS=-Wall -Wextra -std=c++17 -Wold-style-cast -Woverloaded-virtual -Wsign-promo  -Wctor-dtor-privacy -Wnon-virtual-dtor  -Weffc++ -pedantic
 GCCOPTIMIZE=-O3
 OBJECTS0= ./src/bst-map.cpp
-DRIVER0=./src/driver.cpp
+DRIVER0= ./src/driver.cpp
 INCLUDE1=
 MSCINCLUDE=
 MSCDEFINE=
